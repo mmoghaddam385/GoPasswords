@@ -3,10 +3,12 @@ package CryptoHelper
 import (
 	"crypto/aes"
 	"crypto/cipher"
+	"crypto/rand"
 	"encoding/base64"
+	"io"
 )
 
-const nonceSize int = 16
+const ivSize int = 16
 
 // DecryptString will decrypt the given string with the given key and iv
 // and return the result as a string
@@ -51,4 +53,12 @@ func getCipher(key []byte) cipher.AEAD {
 	}
 
 	return aesgcmCipher
+}
+
+// GenerateRandomIV will generate a random IV to be used with one and only one key
+func GenerateRandomIV() []byte {
+	iv := make([]byte, ivSize)
+	io.ReadFull(rand.Reader, iv)
+
+	return iv
 }

@@ -18,11 +18,13 @@ Format of password file:
 
 Line 1: password hash (base64 encoded)
 Line 2: password salt (base64 encoded)
+Line 3: cipher initialization vector (base64 encoded)
 
 */
 
 var passwordHash []byte
 var passwordSalt []byte
+var initializationVector []byte
 
 const passwordFileName string = "auth"
 
@@ -48,6 +50,7 @@ func loadPasswordFile() {
 
 		passwordHash, _ = base64.URLEncoding.DecodeString(split[0])
 		passwordSalt, _ = base64.URLEncoding.DecodeString(split[1])
+		initializationVector, _ = base64.URLEncoding.DecodeString(split[2])
 	}
 
 }
@@ -88,11 +91,13 @@ func createNewPasswordFile() {
 
 	rawPasswordPtr := getNewPassword()
 	salt := CryptoHelper.GenerateRandomSalt()
+	iv := CryptoHelper.GenerateRandomIV()
 
 	hashedPasswordRaw := CryptoHelper.HashPasswordForAuthentication(rawPasswordPtr, salt)
 
 	hashedPassword := base64.URLEncoding.EncodeToString(hashedPasswordRaw)
 	encodedSalt := base64.URLEncoding.EncodeToString(salt)
+	encodedIV := base64.URLEncoding.EncodeToString(iv)
 
 	authFile, err := os.Create(dataDirectory + passwordFileName)
 
@@ -101,9 +106,12 @@ func createNewPasswordFile() {
 	}
 
 	authFile.WriteString(hashedPassword + "\n")
-	authFile.WriteString(encodedSalt)
+	authFile.WriteString(encodedSalt + "\n")
+	authFile.WriteString(encodedIV)
 
 	authFile.Close()
+
+	fmt.Println("Password Saved!")
 }
 
 // getNewPassword gets a new password from the user.
