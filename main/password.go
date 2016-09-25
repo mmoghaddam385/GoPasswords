@@ -44,7 +44,10 @@ func loadPasswordFile() {
 	}(err)
 
 	if err == nil {
-		fmt.Printf("This is in the password file: %v\n", string(passwordFileContents))
+		split := strings.Split(string(passwordFileContents), "\n")
+
+		passwordHash, _ = base64.URLEncoding.DecodeString(split[0])
+		passwordSalt, _ = base64.URLEncoding.DecodeString(split[1])
 	}
 
 }
@@ -86,10 +89,10 @@ func createNewPasswordFile() {
 	rawPasswordPtr := getNewPassword()
 	salt := CryptoHelper.GenerateRandomSalt()
 
-	hashedPassword := base64.URLEncoding.EncodeToString(CryptoHelper.HashPassword(rawPasswordPtr, salt))
-	encodedSalt := base64.URLEncoding.EncodeToString(salt)
+	hashedPasswordRaw := CryptoHelper.HashPasswordForAuthentication(rawPasswordPtr, salt)
 
-	//*rawPasswordPtr = (*rawPasswordPtr)[:0] // clear the raw password for security measure
+	hashedPassword := base64.URLEncoding.EncodeToString(hashedPasswordRaw)
+	encodedSalt := base64.URLEncoding.EncodeToString(salt)
 
 	authFile, err := os.Create(dataDirectory + passwordFileName)
 
@@ -123,7 +126,6 @@ func getNewPassword() []byte {
 		} else {
 			fmt.Println("Passwords don't match, try again")
 		}
-
 	}
 
 	return password
