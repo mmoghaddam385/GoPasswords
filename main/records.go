@@ -77,7 +77,7 @@ func searchRecords(query string) []string {
 	var resultSet []string
 
 	for plainText := range recordMap {
-		if strings.Contains(query, plainText) {
+		if strings.Contains(plainText, query) {
 			resultSet = append(resultSet, plainText)
 		}
 	}

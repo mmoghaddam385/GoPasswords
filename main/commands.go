@@ -53,6 +53,14 @@ func initCommands() {
 
 	commands["change-password"] = command{[]string{"Change Password",
 		"No required arguments; you will be prompted for values"}, changePasswordCommand}
+
+	commands["change-data-directory"] = command{[]string{"Change Data Directory",
+		"Required argument: new data directory path",
+		"This command allows you to change the folder that I look into for data",
+		"WARNING: changing this will require program restart"}, changeDataDirectoryCommand}
+
+	commands["check-data-directory"] = command{[]string{"Print the current data directory"},
+		checkDataDirectoryCommand}
 }
 
 func showHelpCommand(args ...string) {
@@ -86,7 +94,23 @@ func printHelpText(helpText []string) {
 }
 
 func searchCommand(args ...string) {
-	fmt.Println("Not yet implemented")
+	if len(args) == 0 {
+		fmt.Println("query string is a required parameter!")
+		return
+	}
+
+	query := strings.Join(args, " ")
+	results := searchRecords(query)
+
+	if len(results) == 0 {
+		fmt.Println("No records contain '" + query + "'")
+	} else {
+		fmt.Println()
+		for _, result := range results {
+			fmt.Println(result)
+		}
+		fmt.Println()
+	}
 }
 
 func listCommand(args ...string) {
@@ -118,14 +142,14 @@ func viewRecordCommand(args ...string) {
 
 	r := getRecord(siteName)
 
-	fmt.Printf("site name: %v\n", r.sitename)
+	fmt.Printf("\nsite name: %v\n", r.sitename)
 	fmt.Printf("user name: %v\n", r.username)
 	fmt.Printf("password:  %v\t\t", r.password)
 
 	scanner.Scan()
 
 	//move cursor to beginning of the line, then up one line, then print
-	fmt.Printf("\r\033[1Apassword: <REDACTED>                               \n")
+	fmt.Printf("\r\033[1Apassword: <REDACTED>                               \n\n")
 }
 
 func deleteRecordCommand(args ...string) {
@@ -138,12 +162,12 @@ func deleteRecordCommand(args ...string) {
 
 		if strings.ToLower(answer) == "y" {
 			deleteRecord(siteName)
-			fmt.Println("Record deleted")
+			fmt.Println("Record deleted\n")
 		} else {
-			fmt.Println("Delete aborted")
+			fmt.Println("Delete aborted\n")
 		}
 	} else {
-		fmt.Printf("'%v' isn't in the system, try 'create'\n", siteName)
+		fmt.Printf("'%v' isn't in the system, try 'create'\n\n", siteName)
 	}
 }
 
@@ -228,4 +252,31 @@ func updateRecordCommand(args ...string) {
 
 func changePasswordCommand(args ...string) {
 	fmt.Println("Not yet implemented")
+}
+
+func changeDataDirectoryCommand(args ...string) {
+	newDataDir := strings.Join(args, " ")
+
+	if len(newDataDir) == 0 {
+		fmt.Println("new data directory is a required argument!")
+		return
+	}
+
+	fmt.Printf("Are you sure you want to change the data directory to '%v'? (y/n)\n", newDataDir)
+	fmt.Printf("Note: The current data directory is '%v'\n", dataDirectory)
+
+	var answer string
+	fmt.Scan(&answer)
+
+	if strings.ToLower(answer) == "y" {
+		forceChangeDataDirectory(newDataDir)
+		fmt.Println("Directory changed, killing program...")
+		os.Exit(0)
+	} else {
+		fmt.Println("Change aborted\n")
+	}
+}
+
+func checkDataDirectoryCommand(args ...string) {
+	fmt.Println("Current data directory: '" + dataDirectory + "'")
 }

@@ -89,3 +89,17 @@ func changeDataDirectory(msg string) {
 	settingsFile.Close()
 
 }
+
+func forceChangeDataDirectory(newDir string) {
+	//this will simply open for writing if the file already exists
+	settingsFile, err := os.Create(getSettingsFileName())
+
+	if err != nil {
+		panic("Error creating settings file (" + getSettingsFileName() + "): " + err.Error())
+	}
+
+	dataDirectory = newDir
+
+	settingsFile.WriteString(newDir)
+	settingsFile.Close()
+}
