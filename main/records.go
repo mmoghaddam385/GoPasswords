@@ -27,6 +27,7 @@ type record struct {
 	password string
 }
 
+// this maps plain text site names to file names
 var recordMap map[string]string
 
 // loadRecords loads a list of records into memory (only the site names)
