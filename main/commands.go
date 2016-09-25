@@ -174,6 +174,55 @@ func createRecordCommand(args ...string) {
 }
 
 func updateRecordCommand(args ...string) {
+	siteName := strings.Join(args, " ")
+
+	if !recordExists(siteName) {
+		fmt.Printf("'%v' isn't in the system, try 'create'\n", siteName)
+	}
+
+	toUpdate := getRecord(siteName)
+
+	keepGoing := true
+	var answer string
+
+	scanner := bufio.NewScanner(os.Stdin)
+
+	for keepGoing {
+		fmt.Println("What would you like to update?")
+		fmt.Println("\t[S]ite name")
+		fmt.Println("\t[U]ser name")
+		fmt.Println("\t[P]assword")
+		fmt.Println("\n\t[Q]uit")
+
+		fmt.Scan(&answer)
+		answer = strings.ToLower(answer)
+
+		if len(answer) == 1 && strings.Contains("supq", answer) {
+			if answer == "q" {
+				deleteRecord(siteName)
+				createNewRecord(toUpdate)
+				keepGoing = false
+			} else {
+
+				fmt.Print("Enter new value: ")
+
+				switch answer {
+				case "s":
+					scanner.Scan()
+					toUpdate.sitename = scanner.Text()
+				case "u":
+					scanner.Scan()
+					toUpdate.username = scanner.Text()
+				case "p":
+					passwordBytes, _ := terminal.ReadPassword(0)
+					toUpdate.password = string(passwordBytes)
+				default:
+					fmt.Println("How the hell did you input '" + answer + "' and get here??")
+				}
+			}
+
+		}
+	}
 
 }
 
