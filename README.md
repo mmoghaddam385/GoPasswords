@@ -4,5 +4,5 @@ Command line password storage program in Go
 #To Install
 
 Clone this into your Go workspace src folder
-    go install GoPassword
+    go install GoPassword/main
  
