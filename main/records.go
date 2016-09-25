@@ -112,16 +112,16 @@ func getRecord(recordName string) record {
 
 // deleteRecord deletes the given record on disk
 // it is the caller's responsibility to ensure the record actually exists
-func deleteRecord(toDelete record) {
-	fileName := recordMap[toDelete.sitename]
+func deleteRecord(sitename string) {
+	fileName := recordMap[sitename]
 
-	err := os.Remove(fileName)
+	err := os.Remove(dataDirectory + recordsFolder + fileName)
 
 	if err != nil {
-		panic("Error removing record (" + toDelete.sitename + " -> " + fileName + "): " + err.Error())
+		panic("Error removing record (" + sitename + " -> " + fileName + "): " + err.Error())
 	}
 
-	delete(recordMap, toDelete.sitename)
+	delete(recordMap, sitename)
 }
 
 // createNewRecord will create and save a new record in the records folder

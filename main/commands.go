@@ -93,9 +93,11 @@ func listCommand(args ...string) {
 	if len(recordMap) == 0 {
 		fmt.Println("No records, make a new one with 'create'")
 	} else {
+		fmt.Println()
 		for plainText := range recordMap {
 			fmt.Println(plainText)
 		}
+		fmt.Println()
 	}
 }
 
@@ -127,7 +129,22 @@ func viewRecordCommand(args ...string) {
 }
 
 func deleteRecordCommand(args ...string) {
-	fmt.Println("Not yet implemented")
+	siteName := strings.Join(args, " ")
+
+	if recordExists(siteName) {
+		fmt.Print("Are you sure? (y/n) ")
+		var answer string
+		fmt.Scan(&answer)
+
+		if strings.ToLower(answer) == "y" {
+			deleteRecord(siteName)
+			fmt.Println("Record deleted")
+		} else {
+			fmt.Println("Delete aborted")
+		}
+	} else {
+		fmt.Printf("'%v' isn't in the system, try 'create'\n", siteName)
+	}
 }
 
 func createRecordCommand(args ...string) {
