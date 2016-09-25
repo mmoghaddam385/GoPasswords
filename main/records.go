@@ -27,7 +27,7 @@ type record struct {
 	password string
 }
 
-var records map[string]string
+var recordMap map[string]string
 
 // loadRecords loads a list of records into memory (only the site names)
 func loadRecords() {
@@ -49,14 +49,14 @@ func loadRecords() {
 	if err == nil {
 		// initialie recordNames to len of fileNames
 		// this might be more than required if there are stray directories in the folder
-		records = make(map[string]string)
+		recordMap = make(map[string]string)
 
 		for _, fileInfo := range fileNames {
 			if !fileInfo.IsDir() {
 				encryptedFileName := fileInfo.Name()
 				decryptedFileName := CryptoHelper.DecryptString(encryptedFileName, decryptionKey, initializationVector)
 
-				records[decryptedFileName] = encryptedFileName
+				recordMap[decryptedFileName] = encryptedFileName
 			}
 		}
 	}
@@ -76,7 +76,7 @@ func createRecordsFolder() {
 func searchRecords(query string) []string {
 	var resultSet []string
 
-	for plainText := range records {
+	for plainText := range recordMap {
 		if strings.Contains(query, plainText) {
 			resultSet = append(resultSet, plainText)
 		}
@@ -86,13 +86,13 @@ func searchRecords(query string) []string {
 }
 
 func recordExists(recordName string) bool {
-	return records[recordName] != ""
+	return recordMap[recordName] != ""
 }
 
 // deleteRecord deletes the given record on disk
 // it is the caller's responsibility to ensure the record actually exists
 func deleteRecord(toDelete record) {
-	fileName := records[toDelete.sitename]
+	fileName := recordMap[toDelete.sitename]
 
 	err := os.Remove(fileName)
 
@@ -100,7 +100,7 @@ func deleteRecord(toDelete record) {
 		panic("Error removing record (" + toDelete.sitename + " -> " + fileName + "): " + err.Error())
 	}
 
-	delete(records, toDelete.sitename)
+	delete(recordMap, toDelete.sitename)
 }
 
 // createNewRecord will create and save a new record in the records folder

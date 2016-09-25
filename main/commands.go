@@ -24,6 +24,8 @@ func initCommands() {
 		"This command returns the names of any record whose ",
 		"site name contains the query string"}, searchCommand}
 
+	commands["list"] = command{[]string{"List all records"}, listCommand}
+
 	commands["view"] = command{[]string{"View the contents of a record",
 		"Required argument: record sitename",
 		"This command displays the attributes of the record in plain text",
@@ -75,6 +77,16 @@ func printHelpText(helpText []string) {
 
 func searchCommand(args ...string) {
 	fmt.Println("Not yet implemented")
+}
+
+func listCommand(args ...string) {
+	if len(recordMap) == 0 {
+		fmt.Println("No records, make a new one with 'create'")
+	} else {
+		for plainText := range recordMap {
+			fmt.Println(plainText)
+		}
+	}
 }
 
 func viewRecordCommand(args ...string) {
