@@ -13,4 +13,6 @@ func main() {
 	loadPasswordFile()
 
 	authenticate()
+
+	loadRecords()
 }
