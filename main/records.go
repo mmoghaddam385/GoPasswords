@@ -47,7 +47,7 @@ func loadRecords() {
 	}(err)
 
 	if err == nil {
-		// initialie recordNames to len of fileNames
+		// initialize recordNames to len of fileNames
 		// this might be more than required if there are stray directories in the folder
 		recordMap = make(map[string]string)
 
@@ -89,6 +89,27 @@ func recordExists(recordName string) bool {
 	return recordMap[recordName] != ""
 }
 
+// getRecord gets and decrypts a record
+// it is the caller's responsibility to ensure the record actually exists
+func getRecord(recordName string) record {
+	fileName := recordMap[recordName]
+
+	fileContents, err := ioutil.ReadFile(dataDirectory + recordsFolder + fileName)
+	if err != nil {
+		panic("Error getting record: " + err.Error())
+	}
+
+	var r record
+	r.sitename = recordName
+
+	fileSplit := strings.Split(string(fileContents), "\n")
+
+	r.username = CryptoHelper.DecryptString(fileSplit[0], decryptionKey, initializationVector)
+	r.password = CryptoHelper.DecryptString(fileSplit[1], decryptionKey, initializationVector)
+
+	return r
+}
+
 // deleteRecord deletes the given record on disk
 // it is the caller's responsibility to ensure the record actually exists
 func deleteRecord(toDelete record) {
@@ -106,6 +127,7 @@ func deleteRecord(toDelete record) {
 // createNewRecord will create and save a new record in the records folder
 // it is the caller's responsibility to ensure there is no duplicate
 func createNewRecord(newRecord record) {
+	siteName := newRecord.sitename
 	newRecord.encryptContents()
 
 	file, err := os.Create(dataDirectory + recordsFolder + newRecord.sitename)
@@ -117,6 +139,8 @@ func createNewRecord(newRecord record) {
 	file.WriteString(newRecord.password)
 
 	file.Close()
+
+	recordMap[siteName] = newRecord.sitename
 }
 
 func (r *record) encryptContents() {

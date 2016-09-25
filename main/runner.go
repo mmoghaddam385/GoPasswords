@@ -16,6 +16,24 @@ import (
 /*******************************************************************************************/
 
 func main() {
+
+	/*
+		salt := CryptoHelper.GenerateRandomSalt()
+		key := CryptoHelper.HashPasswordForAuthentication([]byte("password"), salt)
+		iv := CryptoHelper.GenerateRandomIV()
+
+		plainText := "this is my plaintext"
+
+		cipherText := CryptoHelper.EncryptString(plainText, key, iv)
+		cipherTextString := base64.URLEncoding.EncodeToString(cipherText)
+
+		morePlainText := CryptoHelper.DecryptString(cipherTextString, key, iv)
+		fmt.Println("Plain text: " + string(plainText))
+		fmt.Println("Plain text? " + string(morePlainText))
+
+		return
+	*/
+
 	loadSettingsFile()
 	loadPasswordFile()
 

@@ -1,6 +1,13 @@
 package main
 
-import "fmt"
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"strings"
+
+	"golang.org/x/crypto/ssh/terminal"
+)
 
 type command struct {
 	helpText []string
@@ -40,6 +47,9 @@ func initCommands() {
 		"No required arguments; you will be prompted for values"}, createRecordCommand}
 
 	commands["new"] = command{[]string{"See 'create'"}, createRecordCommand}
+
+	commands["update"] = command{[]string{"Update a record",
+		"Required argument: record sitename"}, updateRecordCommand}
 
 	commands["change-password"] = command{[]string{"Change Password",
 		"No required arguments; you will be prompted for values"}, changePasswordCommand}
@@ -90,7 +100,30 @@ func listCommand(args ...string) {
 }
 
 func viewRecordCommand(args ...string) {
-	fmt.Println("Not yet implemented")
+	if len(args) == 0 {
+		fmt.Println("You must pass a record site name as a parameter")
+		return
+	}
+
+	siteName := strings.Join(args, " ")
+
+	if !recordExists(siteName) {
+		fmt.Printf("'%v' isn't in the system, try 'create'\n", siteName)
+		return
+	}
+
+	scanner := bufio.NewScanner(os.Stdin)
+
+	r := getRecord(siteName)
+
+	fmt.Printf("site name: %v\n", r.sitename)
+	fmt.Printf("user name: %v\n", r.username)
+	fmt.Printf("password:  %v\t\t", r.password)
+
+	scanner.Scan()
+
+	//move cursor to beginning of the line, then up one line, then print
+	fmt.Printf("\r\033[1Apassword: <REDACTED>                               \n")
 }
 
 func deleteRecordCommand(args ...string) {
@@ -98,7 +131,33 @@ func deleteRecordCommand(args ...string) {
 }
 
 func createRecordCommand(args ...string) {
-	fmt.Println("Not yet implemented")
+	scanner := bufio.NewScanner(os.Stdin)
+	var newRecord record
+
+	fmt.Print("\nEnter site name: ")
+	scanner.Scan()
+	newRecord.sitename = scanner.Text()
+
+	// disallow duplicate site names
+	if recordExists(newRecord.sitename) {
+		fmt.Printf("ERROR: A record already exists under '%v'\n", newRecord.sitename)
+		return
+	}
+
+	fmt.Print("Enter user name: ")
+	scanner.Scan()
+	newRecord.username = scanner.Text()
+
+	fmt.Print("Enter password: ")
+	passwordBytes, _ := terminal.ReadPassword(0)
+	newRecord.password = string(passwordBytes)
+	fmt.Println()
+
+	createNewRecord(newRecord)
+}
+
+func updateRecordCommand(args ...string) {
+
 }
 
 func changePasswordCommand(args ...string) {

@@ -8,7 +8,7 @@ import (
 	"io"
 )
 
-const ivSize int = 16
+const ivSize int = 12
 
 // DecryptString will decrypt the given string with the given key and iv
 // and return the result as a string
@@ -31,7 +31,7 @@ func Decrypt(cipherText []byte, key []byte, iv []byte) []byte {
 // EncryptString encrypts a string with the given key and iv
 // and returns the result as a byte slice
 func EncryptString(plainText string, key []byte, iv []byte) []byte {
-	plainTextAsBytes, _ := base64.URLEncoding.DecodeString(plainText)
+	plainTextAsBytes := []byte(plainText)
 	return Encrypt(plainTextAsBytes, key, iv)
 }
 
