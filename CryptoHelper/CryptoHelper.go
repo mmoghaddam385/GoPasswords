@@ -11,8 +11,8 @@ import (
 const hashRepititions int = 10
 const saltLength int = 32
 
-// HashPassword hashes a password with a given salt
-func HashPassword(password []byte, salt []byte) []byte {
+// hashPassword hashes a password with a given salt and a given number of iterations
+func hashPassword(password []byte, salt []byte) []byte {
 	fmt.Printf("SHA256 available? %v\n", crypto.SHA256.Available())
 	hasher := sha256.New()
 
