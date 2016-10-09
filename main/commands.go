@@ -6,6 +6,8 @@ import (
 	"os"
 	"strings"
 
+	"github.com/atotto/clipboard"
+
 	"golang.org/x/crypto/ssh/terminal"
 )
 
@@ -61,6 +63,10 @@ func initCommands() {
 
 	commands["check-data-directory"] = command{[]string{"Print the current data directory"},
 		checkDataDirectoryCommand}
+
+	commands["copy"] = command{[]string{"Copy the password of a given record into the clipboard",
+		"Required argument: record sitename"},
+		copyCommand}
 }
 
 func showHelpCommand(args ...string) {
@@ -279,4 +285,28 @@ func changeDataDirectoryCommand(args ...string) {
 
 func checkDataDirectoryCommand(args ...string) {
 	fmt.Println("Current data directory: '" + dataDirectory + "'")
+}
+
+func copyCommand(args ...string) {
+	sitename := strings.Join(args, " ")
+
+	if len(sitename) == 0 {
+		fmt.Println("record sitename is a requried argument!")
+		return
+	}
+
+	if !recordExists(sitename) {
+		fmt.Printf("'%v' isn't in the system, try 'create'\n", sitename)
+		return
+	}
+
+	r := getRecord(sitename)
+
+	err := clipboard.WriteAll(r.password) // try to write to the clipboard
+
+	if err != nil {
+		fmt.Println("Error pasting to clipboard: " + err.Error())
+	} else {
+		fmt.Println("Password has been copied to clipboard")
+	}
 }
